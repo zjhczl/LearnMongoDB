@@ -394,3 +394,5 @@ WriteResult({ "nRemoved" : 3 })
 ```
 
 ## 用例(文章评论)
+
+![](./img/0.png)
