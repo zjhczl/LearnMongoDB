@@ -2,7 +2,7 @@
 
 # LearnMongoDB
 
-## 下载链接
+## 下载安装
 
 1.下载安装 mongodb https://www.mongodb.com/try/download/community
 
@@ -42,6 +42,8 @@ local：这个数据库的数据永远不会被复制，可以用来储存本地
 config：当 mongo 用于分片设置时，config 数据库在内部使用，用于保存分片的相关信息。
 
 ## 数据库常用命令
+
+### 数据库相关
 
 查看数据库
 
@@ -85,7 +87,9 @@ true
 >
 ```
 
-## 文档的增删改查
+### 文档的增删改
+
+#### 插入数据
 
 ```bash
 > db.my.insert({"zj":"test",name:"zj",age:26,others:{}})  #my集合自动创建
@@ -121,7 +125,7 @@ WriteResult({ "nInserted" : 1 })
 { "age" : 26 }
 ```
 
-修改
+#### 修改
 
 ```bash
 db.my.update({name:"zj"},{age:27})
@@ -172,7 +176,7 @@ WriteResult({ "nMatched" : 2, "nUpserted" : 0, "nModified" : 2 })
 
 ```
 
-删除
+#### 删除
 
 ```bash
 > db.my.find()
@@ -195,9 +199,9 @@ WriteResult({ "nRemoved" : 3 })
 >
 ```
 
-## 分页查询和排序
+### 分页查询和排序
 
-分页
+#### 分页
 
 ```bash
 > db.my.find()
@@ -224,7 +228,7 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ed"), "name" : "zj2", "age" : 18 }
 ```
 
-排序
+#### 排序
 
 ```bash
 > db.my.find().sort({age:1}) #升序
@@ -238,14 +242,14 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ec"), "name" : "zj1", "age" : 17 }
 ```
 
-正则查询
+#### 正则查询
 
 ```bash
 > db.my.find({name:/1/}) # 查询name包含1的的所有数据
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ec"), "name" : "zj1", "age" : 17 }
 ```
 
-比较查询
+#### 比较查询
 
 ```bash
 > db.my.find({age:{$gt:18}})) # >
@@ -267,7 +271,7 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ee"), "name" : "zj3", "age" : 19 }
 ```
 
-包含查询
+#### 包含查询
 
 ```bash
 > db.my.find({name:{$in:["zj1","zj2"]}})
@@ -275,23 +279,23 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ed"), "name" : "zj2", "age" : 18 }
 ```
 
-条件查询
+#### 条件查询
 
 ```bash
 > db.my.find({$and:[{name:"zj1"},{age:{$gt:11}}]}) # 名字zj，age大于11
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ec"), "name" : "zj1", "age" : 17 }
 ```
 
-## 索引
+### 索引
 
-查看索引
+#### 查看索引
 
 ```bash
 > db.my.getIndexes()
 [ { "v" : 2, "key" : { "_id" : 1 }, "name" : "_id_" } ]
 ```
 
-创建索引
+#### 创建索引
 
 ```bash
 > db.my.createIndex({name:1}) #创建索引 1是升序，-1降序
@@ -354,7 +358,7 @@ WriteResult({ "nRemoved" : 3 })
 ]
 ```
 
-删除索引
+#### 删除索引
 
 ```bash
 > db.my.dropIndex({name:1})
