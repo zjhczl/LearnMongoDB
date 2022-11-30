@@ -1,31 +1,37 @@
-- [LearnMongoDB](#learnmongodb)
-  - [下载安装](#下载安装)
-  - [mongodb 的三个默认的库](#mongodb-的三个默认的库)
-  - [数据库常用命令](#数据库常用命令)
-    - [数据库相关](#数据库相关)
-      - [查看数据库](#查看数据库)
-      - [创建数据库](#创建数据库)
-      - [集合](#集合)
-    - [文档的增删改](#文档的增删改)
-      - [插入数据](#插入数据)
-      - [修改](#修改)
-      - [删除](#删除)
-    - [分页查询和排序](#分页查询和排序)
-      - [分页](#分页)
-      - [排序](#排序)
-      - [正则查询](#正则查询)
-      - [比较查询](#比较查询)
-      - [包含查询](#包含查询)
-      - [条件查询](#条件查询)
-    - [索引](#索引)
-      - [查看索引](#查看索引)
-      - [创建索引](#创建索引)
-      - [删除索引](#删除索引)
-  - [用例(文章评论)](#用例文章评论)
+- [1. MongoDB安装与配置](#1-mongodb安装与配置)
+  - [1.1. windows](#11-windows)
+  - [1.2. ubuntu](#12-ubuntu)
+  - [1.3. mongodb 的三个默认的库](#13-mongodb-的三个默认的库)
+  - [1.4. 权限管理](#14-权限管理)
+    - [1.4.1. 切换到admin数据库进行权限管理](#141-切换到admin数据库进行权限管理)
+    - [1.4.2. 为数据库添加账号](#142-为数据库添加账号)
+    - [1.4.3. 修改配置文件](#143-修改配置文件)
+    - [1.4.4. 使用账户登录数据库](#144-使用账户登录数据库)
+- [2. 数据库常用命令](#2-数据库常用命令)
+  - [2.1. 数据库相关](#21-数据库相关)
+    - [2.1.1. 查看数据库](#211-查看数据库)
+    - [2.1.2. 创建数据库](#212-创建数据库)
+    - [2.1.3. 集合](#213-集合)
+  - [2.2. 文档的增删改](#22-文档的增删改)
+    - [2.2.1. 插入数据](#221-插入数据)
+    - [2.2.2. 修改](#222-修改)
+    - [2.2.3. 删除](#223-删除)
+  - [2.3. 分页查询和排序](#23-分页查询和排序)
+    - [2.3.1. 分页](#231-分页)
+    - [2.3.2. 排序](#232-排序)
+    - [2.3.3. 正则查询](#233-正则查询)
+    - [2.3.4. 比较查询](#234-比较查询)
+    - [2.3.5. 包含查询](#235-包含查询)
+    - [2.3.6. 条件查询](#236-条件查询)
+  - [2.4. 索引](#24-索引)
+    - [2.4.1. 查看索引](#241-查看索引)
+    - [2.4.2. 创建索引](#242-创建索引)
+    - [2.4.3. 删除索引](#243-删除索引)
+- [3. 用例(文章评论)](#3-用例文章评论)
 
-# LearnMongoDB
 
-## 下载安装
+# 1. MongoDB安装与配置
+## 1.1. windows
 
 1.下载安装 mongodb https://www.mongodb.com/try/download/community
 
@@ -55,8 +61,25 @@ mongodb
 ```
 momgo --host=127.0.0.1 --port=12707
 ```
+## 1.2. ubuntu
 
-## mongodb 的三个默认的库
+安装mongodb
+```
+apt install mongodb
+```
+
+开启数据库
+```bash
+sudo service mongodb start
+sudo service mongodb stop
+sudo service mongodb restart
+```
+
+远程连接数据库
+```bash
+mongo mongodb://my.zjhczl.xyz
+```
+## 1.3. mongodb 的三个默认的库
 
 admin：从权限角度看这是一个 root 库。要是将用户添加到这个数据库，这个用户自动继承所有数据库权限。一些特定的服务端命令也只能从这个数据库运行，比如关闭服务。
 
@@ -64,11 +87,48 @@ local：这个数据库的数据永远不会被复制，可以用来储存本地
 
 config：当 mongo 用于分片设置时，config 数据库在内部使用，用于保存分片的相关信息。
 
-## 数据库常用命令
+## 1.4. 权限管理
 
-### 数据库相关
+### 1.4.1. 切换到admin数据库进行权限管理
+```bash
+use admin
+```
 
-#### 查看数据库
+### 1.4.2. 为数据库添加账号
+例：为test数据库添加一个admin账号
+```bash
+db.createUser({user: "admin", pwd: "123456",roles: [ { role: "dbOwner", db: "test"}]})
+```
+role可以有一下选择:
+
+        read: 只能读取指定数据库
+        readWrite: 能读写指定数据库
+        dbAdmin: 能执行管理函数，如索引创建、删除，查看统计或访问 system.profile
+        dbOwner: 对当前数据库有全部权限
+        userAdmin: 能创建、删除和管理用户
+        clusterAdmin: 只能在 admin 数据库中可用，能赋予用户所有分片和复制集相关函数的管理权限
+        readAnyDatabase: 只能在 admin 数据库中可用，能赋予用户所有数据库的读权限
+        readWriteAnyDatabase: 只能在 admin 数据库中可用，能赋予用户所有数据库的读写权限
+        userAdminAnyDatabase: 只能在 admin 数据库中可用，能赋予用户所有数据库的 userAdmin 权限
+        dbAdminAnyDatabase: 只能在 admin 数据库中可用，能赋予用户所有数据库的 dbAdmin 权限
+        root: 只能在 admin 数据库中可用。超级权限
+
+### 1.4.3. 修改配置文件
+
+需要开启auth才能只用配置的账户
+```bash
+auth = true
+```
+### 1.4.4. 使用账户登录数据库
+```bash
+db.auth("username","passwd")
+```
+
+# 2. 数据库常用命令
+
+## 2.1. 数据库相关
+
+### 2.1.1. 查看数据库
 
 ```
 > show dbs
@@ -77,7 +137,7 @@ config  0.000GB
 local   0.000GB
 ```
 
-#### 创建数据库
+### 2.1.2. 创建数据库
 
 ```bash
 > use zjtest
@@ -97,7 +157,7 @@ zjtest
 { "ok" : 1 }
 ```
 
-#### 集合
+### 2.1.3. 集合
 
 ```bash
 > db.createCollection("my") #创建集合
@@ -110,9 +170,9 @@ true
 >
 ```
 
-### 文档的增删改
+## 2.2. 文档的增删改
 
-#### 插入数据
+### 2.2.1. 插入数据
 
 ```bash
 > db.my.insert({"zj":"test",name:"zj",age:26,others:{}})  #my集合自动创建
@@ -148,7 +208,7 @@ WriteResult({ "nInserted" : 1 })
 { "age" : 26 }
 ```
 
-#### 修改
+### 2.2.2. 修改
 
 ```bash
 db.my.update({name:"zj"},{age:27})
@@ -199,7 +259,7 @@ WriteResult({ "nMatched" : 2, "nUpserted" : 0, "nModified" : 2 })
 
 ```
 
-#### 删除
+### 2.2.3. 删除
 
 ```bash
 > db.my.find()
@@ -222,9 +282,9 @@ WriteResult({ "nRemoved" : 3 })
 >
 ```
 
-### 分页查询和排序
+## 2.3. 分页查询和排序
 
-#### 分页
+### 2.3.1. 分页
 
 ```bash
 > db.my.find()
@@ -251,7 +311,7 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ed"), "name" : "zj2", "age" : 18 }
 ```
 
-#### 排序
+### 2.3.2. 排序
 
 ```bash
 > db.my.find().sort({age:1}) #升序
@@ -265,14 +325,14 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ec"), "name" : "zj1", "age" : 17 }
 ```
 
-#### 正则查询
+### 2.3.3. 正则查询
 
 ```bash
 > db.my.find({name:/1/}) # 查询name包含1的的所有数据
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ec"), "name" : "zj1", "age" : 17 }
 ```
 
-#### 比较查询
+### 2.3.4. 比较查询
 
 ```bash
 > db.my.find({age:{$gt:18}})) # >
@@ -294,7 +354,7 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ee"), "name" : "zj3", "age" : 19 }
 ```
 
-#### 包含查询
+### 2.3.5. 包含查询
 
 ```bash
 > db.my.find({name:{$in:["zj1","zj2"]}})
@@ -302,23 +362,23 @@ WriteResult({ "nRemoved" : 3 })
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ed"), "name" : "zj2", "age" : 18 }
 ```
 
-#### 条件查询
+### 2.3.6. 条件查询
 
 ```bash
 > db.my.find({$and:[{name:"zj1"},{age:{$gt:11}}]}) # 名字zj，age大于11
 { "_id" : ObjectId("637f02da559f1d9a1b08a2ec"), "name" : "zj1", "age" : 17 }
 ```
 
-### 索引
+## 2.4. 索引
 
-#### 查看索引
+### 2.4.1. 查看索引
 
 ```bash
 > db.my.getIndexes()
 [ { "v" : 2, "key" : { "_id" : 1 }, "name" : "_id_" } ]
 ```
 
-#### 创建索引
+### 2.4.2. 创建索引
 
 ```bash
 > db.my.createIndex({name:1}) #创建索引 1是升序，-1降序
@@ -381,7 +441,7 @@ WriteResult({ "nRemoved" : 3 })
 ]
 ```
 
-#### 删除索引
+### 2.4.3. 删除索引
 
 ```bash
 > db.my.dropIndex({name:1})
@@ -420,6 +480,6 @@ WriteResult({ "nRemoved" : 3 })
 }
 ```
 
-## 用例(文章评论)
+# 3. 用例(文章评论)
 
 ![](./img/0.png)
